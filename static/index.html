@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Invoice Lines Extractor</title>
+    <link rel="stylesheet" href="/static/styles.css">
+  </head>
+  <body>
+    <header class="app-header">
+      <div>
+        <h1>Invoice Lines Extractor</h1>
+        <p>Upload OCR files, review extracted invoice lines, and capture future upgrade ideas.</p>
+      </div>
+      <span class="threshold">Review threshold: 97%</span>
+    </header>
+
+    <nav class="tabs" aria-label="Main tabs">
+      <button class="tab-button active" data-tab="extract">Extraction Review</button>
+      <button class="tab-button" data-tab="upgrades">Saved Future Upgrades</button>
+    </nav>
+
+    <main>
+      <section id="extract-tab" class="tab-panel active">
+        <section class="upload-band">
+          <form id="upload-form" class="upload-form">
+            <label for="ocr-file">OCR file</label>
+            <input id="ocr-file" name="file" type="file" accept=".json,.txt,application/json,text/plain" required>
+            <button type="submit">Upload and extract</button>
+          </form>
+          <div id="upload-message" class="message" role="status"></div>
+        </section>
+
+        <section class="workspace">
+          <aside class="file-list-panel">
+            <div class="section-heading">
+              <h2>Uploaded Files</h2>
+              <button id="refresh-files" type="button">Refresh</button>
+            </div>
+            <div id="file-list" class="file-list"></div>
+          </aside>
+
+          <section class="result-panel">
+            <div id="file-detail" class="empty-state">
+              Upload an OCR file or choose one from the list.
+            </div>
+          </section>
+        </section>
+      </section>
+
+      <section id="upgrades-tab" class="tab-panel">
+        <div class="section-heading">
+          <h2>Saved Future Upgrades</h2>
+          <button id="refresh-upgrades" type="button">Refresh</button>
+        </div>
+        <div id="upgrades-list" class="upgrades-list"></div>
+      </section>
+    </main>
+
+    <script src="/static/app.js"></script>
+  </body>
+</html>

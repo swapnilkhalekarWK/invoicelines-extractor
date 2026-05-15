@@ -634,3 +634,90 @@ A future change should ideally include:
 ## 23. One-sentence project summary
 
 `invoicelines-extractor` is a Python prototype that reconstructs invoice table structure from Textract-style OCR word coordinates and extracts only product/service and adjustment line items into structured JSON using geometry, header anchors, numeric alignment, and arithmetic confidence checks.
+
+---
+
+## 24. MVP web interface and agent flow
+
+The project now includes a local MVP web app around the extractor.
+
+The web app should:
+
+1. Allow uploading OCR files.
+2. Show extraction output per uploaded file.
+3. Treat files below 97% confidence as failed extraction reviews.
+4. Show this message for low-confidence files:
+
+```text
+We could not extract invoice lines for this file
+```
+
+5. Show an `Understand why?` button for low-confidence files.
+6. Invoke the OpenAI analysis agent when that button is clicked.
+7. Display the LLM analysis plus a fix proposal.
+8. Let the user either ignore the LLM analysis or save it for future upgrades.
+9. Store saved analyses and fix proposals in SQLite.
+10. Show saved analyses in a separate `Saved Future Upgrades` tab.
+
+The OpenAI API key should be read from local `.env` as `OPENAI_API_KEY` and not committed or stored in the app.
+
+Agent invocation code should live outside the web server handler. The current convention is:
+
+- `openai_agent.py` owns OpenAI request construction and response parsing.
+- `.env.example` documents required local settings.
+- `.env` is ignored by git.
+- `AI_PROJECT_CONTEXT.md` is loaded into every agent prompt.
+
+## MVP Review Rule
+
+The web app flags a file for review when:
+
+- no invoice lines are extracted, or
+- the minimum extracted line confidence is below `0.97`.
+
+When a file is flagged, the interface shows:
+
+```text
+We could not extract invoice lines for this file
+```
+
+The user can click `Understand why?` to invoke the OpenAI analysis agent.
+
+## Agent Goal
+
+The OpenAI analysis agent should diagnose why the current regex and geometry based extractor struggled with a specific OCR file.
+
+The agent should compare:
+
+- the raw OCR file content
+- reconstructed rows
+- inferred layout anchors
+- extraction output
+- confidence scores
+- extraction errors, if any
+
+The response should help future engineering work. It must include:
+
+- a concise explanation suitable for a product user
+- a concrete fix proposal suitable for a developer
+
+The fix proposal should focus on improvements to the current extractor, such as:
+
+- header vocabulary additions
+- column anchor inference
+- row reconstruction
+- multi-line description handling
+- tax-inclusive amount handling
+- pack-size or VAT column handling
+- discount or adjustment row handling
+- confidence scoring
+- fallback strategies when headers are missing
+
+## Current Known Limits
+
+- Multi-line descriptions are not merged yet.
+- Tax-inclusive totals may be valid even when arithmetic validation fails.
+- Header-driven inference may miss uncommon column names.
+- Tables with missing or weak headers need stronger fallback logic.
+- The project does not yet train or use a classifier.
+- The app is local-only and does not include authentication or deployment packaging.

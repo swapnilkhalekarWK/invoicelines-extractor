@@ -172,3 +172,34 @@ Suggested output shape:
 Start template-free, geometry-first, and rule-assisted.
 
 For many invoices, a large model may not be necessary. The useful trick is to rebuild table structure from coordinates, then use numeric alignment and arithmetic validation to separate real line items from surrounding invoice noise.
+
+## MVP Interface Direction
+
+The project is now moving from CLI prototype to local MVP web app.
+
+The minimal interface should:
+
+1. Allow uploading OCR files.
+2. Show extraction output per uploaded file.
+3. Treat files below 97% confidence as failed extraction reviews.
+4. Show this message for low-confidence files:
+
+```text
+We could not extract invoice lines for this file
+```
+
+5. Show an `Understand why?` button for low-confidence files.
+6. Send OCR content, extraction output, and diagnostics to OpenAI when that button is clicked.
+7. Display the LLM analysis plus a fix proposal.
+8. Let the user either ignore the LLM analysis or save it for future upgrades.
+9. Store saved analyses and fix proposals in SQLite.
+10. Show saved analyses in a separate `Saved Future Upgrades` tab.
+
+The OpenAI API key should be read from local `.env` as `OPENAI_API_KEY` and not committed or stored in the app.
+
+Agent invocation code should live outside the web server handler. The current convention is:
+
+- `openai_agent.py` owns OpenAI request construction and response parsing.
+- `.env.example` documents required local settings.
+- `.env` is ignored by git.
+- `AI_PROJECT_CONTEXT.md` is loaded into every agent prompt.
